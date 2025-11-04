@@ -1,95 +1,89 @@
-# import urllib library
-from urllib.request import Request, urlopen
-# import json
-import json
-from urllib.parse import quote
+import tkinter as tk
+from tkinter import messagebox
+from api_login import *
 
-API_URL = "http://castellet2526m12.cat/api"
+# Variable global per guardar el nom de l'usuari
+user = ""
+nomGrup="Pepes"
 
-def api_login(app, name, passw):
-
-    req = Request(
-        url=f"{API_URL}?a=login&app={app}&name={name}&pass={passw}", 
-        headers={'User-Agent': 'Mozilla/5.0'}
-    )
-    
-    response = urlopen(req).read()
-    data_json = json.loads(response)
-    #print(data_json)
-    return data_json["status"] == "success"
-
-def api_getpunts(app, name, passw):
-
-    req = Request(
-        url=f"{API_URL}?a=login&app={app}&name={name}&pass={passw}", 
-        headers={'User-Agent': 'Mozilla/5.0'}
-    )
-    
-    response = urlopen(req).read()
-    data_json = json.loads(response)
-    #print(data_json)
-    if data_json["status"] == "success":
-        return data_json['user']["punts"]
-    else:
-        return False
+def mostrar_splash():
+    #-------------------------FINESTRA SPLASH------------------------------------
+    global arrel  
+    def mostrar_principal():
+        # Destrueix el splash i mostra la finestra principal
+        splash.destroy()
+        arrel.deiconify()
+        
+    splash = tk.Toplevel()
+    splash.title("Carregant...")
+    canvasSplash = tk.Canvas(splash, width=1000, height=547)
+    canvasSplash.pack()
+    # Contingut del splash
+    # Carregar una imatge de fons, ha de ser png
+    splash.imatge_2 = tk.PhotoImage(file="imatgeSplash.png") 
+    possa_imatge2 = canvasSplash.create_image(0, 0, anchor=tk.NW, image=splash.imatge_2) 
+    # Tanca el splash després de 3 segons i mostra la finestra principal
+    splash.after(3000, mostrar_principal)
 
 
+def obrir_segona_finestra():
+    #-------------------------FINESTRA LOGIN----------------------------------------
+    def ferLogin():
+        global user
+        global nomGrup
+        user = entradaUser.get()
+        contra = entradaPass.get()
+        #aqui fa el login
+        if (api_login(nomGrup, user,contra)):            
+            messagebox.showinfo("Benvingut", user)
+            segona.destroy()
+        else:
+            messagebox.showerror("ERROR")
+            
 
-def api_updatepunts(app, name, passw, punts):
-    """Send punts (points) to the API for the given user/app.
-
-    Returns True if the API responds with status == 'success', otherwise False.
-    """
-    # Quote all parameters to be safe
-    req = Request(
-        url=(f"{API_URL}?a=updatepunts&app={quote(app)}&name={quote(name)}"
-             f"&pass={quote(passw)}&punts={quote(str(punts))}"),
-        headers={'User-Agent': 'Mozilla/5.0'}
-    )
-    try:
-        response = urlopen(req).read()
-        data_json = json.loads(response)
-        return data_json.get("status") == "success"
-    except Exception:
-        return False
-
-
-def api_register(app, name, passw):
-    #print(f"{API_URL}?a=register&app={app}&name={name}&pass={passw}")
-
-    req = Request(
-        url=f"{API_URL}?a=register&app={app}&name={name}&pass={passw}", 
-        headers={'User-Agent': 'Mozilla/5.0'}
-    )
-    response = urlopen(req).read()
-    data_json = json.loads(response)
-    return data_json["status"] == "success"
-
-def api_deleteuser(app, username, password):
-    # Build request URL (quote parameters to be safe)
-    req = Request(
-        url=f"{API_URL}?a=deleteuser&app={app}&name={username}&pass={password}",
-        headers={'User-Agent': 'Mozilla/5.0'}
-    )
-    try:
-        response = urlopen(req).read()
-        data_json = json.loads(response)
-        return data_json.get("status") == "success"
-    except Exception:
-        # On any error (network, JSON parsing, etc.) return False
-        return False
+    def ferSignUp():
+        global user
+        global nomGrup
+        user = entradaUser.get()
+        contra = entradaPass.get()
+        #aqui fa el sign up
+        if (api_register(nomGrup, user,contra)):
+            segona.destroy()
+        else:
+            messagebox.showerror("ERROR")
 
 
-def api_userlist(app):
+        
 
-    req = Request(
-        url=f"{API_URL}?a=userlist&app={app}", 
-        headers={'User-Agent': 'Mozilla/5.0'}
-    )
-    #print (f"{API_URL}?a=userlist&app={app}")
-    response = urlopen(req).read()
-    data_json = json.loads(response)
-    #print(data_json)
-    if data_json["status"] != "success":
-        return False
-    return data_json["msg"]
+    segona = tk.Toplevel(arrel)
+    segona.title("LOGIN")
+    segona.geometry("250x220")
+
+    entradaUser = tk.Entry(segona, width=20)
+    entradaUser.insert(0, "Usuari")
+    entradaUser.pack(pady=10)
+
+    entradaPass = tk.Entry(segona, width=20)
+    entradaPass.insert(0, "Contrasenya")
+    entradaPass.pack(pady=10)
+
+    tk.Button(segona, text="Login", command=ferLogin).pack(pady=10)
+    tk.Button(segona, text="Crear Usuari", command=ferSignUp).pack(pady=10)
+
+    segona.grab_set()
+    segona.focus_set()
+    arrel.wait_window(segona)
+
+
+  
+
+# --------------PANTALLA PRINCIPAL-------------------------------------
+arrel = tk.Tk()
+arrel.title("Finestra principal")
+arrel.geometry("300x200")
+arrel.withdraw()  # Amaga la finestra principal fins que des de SPLASH la mostri
+
+tk.Button(arrel, text="Login", command=obrir_segona_finestra).pack(pady=50)
+
+mostrar_splash()
+arrel.mainloop()
