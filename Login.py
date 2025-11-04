@@ -2,43 +2,39 @@ import tkinter as tk
 from tkinter import messagebox
 from api_login import *
 
-# Variable global per guardar el nom de l'usuari
 user = ""
-nomGrup="Pepes"
+nomGrup="grup 1"
 
 def mostrar_splash():
-    #-------------------------FINESTRA SPLASH------------------------------------
+    #FINESTRA SPLASH
     global arrel  
     def mostrar_principal():
-        # Destrueix el splash i mostra la finestra principal
         splash.destroy()
         arrel.deiconify()
         
     splash = tk.Toplevel()
     splash.title("Carregant...")
-    canvasSplash = tk.Canvas(splash, width=1000, height=547)
+    canvasSplash = tk.Canvas(splash, width=1000, height=600)
     canvasSplash.pack()
-    # Contingut del splash
-    # Carregar una imatge de fons, ha de ser png
-    splash.imatge_2 = tk.PhotoImage(file="imatgeSplash.png") 
+    splash.imatge_2 = tk.PhotoImage(file="SPLASH DISNEY.png") 
     possa_imatge2 = canvasSplash.create_image(0, 0, anchor=tk.NW, image=splash.imatge_2) 
-    # Tanca el splash després de 3 segons i mostra la finestra principal
+
     splash.after(3000, mostrar_principal)
 
 
 def obrir_segona_finestra():
-    #-------------------------FINESTRA LOGIN----------------------------------------
+    #FINESTRA LOGIN
     def ferLogin():
         global user
         global nomGrup
         user = entradaUser.get()
         contra = entradaPass.get()
         #aqui fa el login
-        if (api_login(nomGrup, user,contra)):            
-            messagebox.showinfo("Benvingut", user)
+        if (api_login(nomGrup, user,password)):            
+            messagebox.showinfo("benvingut", user)
             segona.destroy()
         else:
-            messagebox.showerror("ERROR")
+            messagebox.showerror("Usuari o contrasenya incorrecte")
             
 
     def ferSignUp():
@@ -50,25 +46,24 @@ def obrir_segona_finestra():
         if (api_register(nomGrup, user,contra)):
             segona.destroy()
         else:
-            messagebox.showerror("ERROR")
+            messagebox.showerror("Usuari o contraseña incorrecte")
 
-
-        
+   
 
     segona = tk.Toplevel(arrel)
     segona.title("LOGIN")
-    segona.geometry("250x220")
+    segona.geometry("300x300")
 
     entradaUser = tk.Entry(segona, width=20)
-    entradaUser.insert(0, "Usuari")
+    entradaUser.insert(0, "User")
     entradaUser.pack(pady=10)
 
     entradaPass = tk.Entry(segona, width=20)
-    entradaPass.insert(0, "Contrasenya")
+    entradaPass.insert(0, "password")
     entradaPass.pack(pady=10)
 
     tk.Button(segona, text="Login", command=ferLogin).pack(pady=10)
-    tk.Button(segona, text="Crear Usuari", command=ferSignUp).pack(pady=10)
+    tk.Button(segona, text="sing up", command=ferSignUp).pack(pady=10)
 
     segona.grab_set()
     segona.focus_set()
@@ -77,11 +72,11 @@ def obrir_segona_finestra():
 
   
 
-# --------------PANTALLA PRINCIPAL-------------------------------------
+# PANTALLA PRINCIPAL
 arrel = tk.Tk()
 arrel.title("Finestra principal")
 arrel.geometry("300x200")
-arrel.withdraw()  # Amaga la finestra principal fins que des de SPLASH la mostri
+arrel.withdraw()  
 
 tk.Button(arrel, text="Login", command=obrir_segona_finestra).pack(pady=50)
 
